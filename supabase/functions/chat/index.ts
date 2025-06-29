@@ -22,7 +22,7 @@ interface Message {
 const historyCache = new Map<string, { data: Message[], timestamp: number }>();
 const CACHE_TTL = 30000; // 30 seconds cache
 
-async function getConversationHistory(conversationId: string, limit: number = 8): Promise<Message[]> {
+async function getConversationHistory(conversationId: string, limit: number = 6): Promise<Message[]> {
   try {
     // Check cache first
     const cached = historyCache.get(conversationId);
@@ -131,7 +131,6 @@ async function getAIResponse(prompt: string, conversationHistory: Message[] = []
       headers: {
         'Authorization': 'Bearer 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',
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://bolt.new',
         'X-Title': 'AI Chat Application',
       },
       body: JSON.stringify({
