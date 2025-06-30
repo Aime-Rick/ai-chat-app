@@ -28,29 +28,6 @@ A production-ready, full-stack AI chat application built with React, TypeScript,
 - **Accessibility**: WCAG compliance and keyboard navigation
 - **Loading States**: User-friendly loading indicators and skeleton screens
 
-## 🛠 Tech Stack
-
-### Frontend
-- **React 18**: Modern React with hooks and concurrent features
-- **TypeScript**: Static type checking and better developer experience
-- **Tailwind CSS**: Utility-first CSS framework for rapid styling
-- **Framer Motion**: Smooth animations and micro-interactions
-- **Zustand**: Lightweight state management
-- **React Router**: Client-side routing
-- **Lucide React**: Beautiful, consistent icons
-
-### Backend
-- **Supabase**: Backend-as-a-Service with PostgreSQL database
-- **Edge Functions**: Serverless functions for AI integration
-- **Row Level Security**: Database-level security policies
-- **Real-time Subscriptions**: Live data synchronization
-
-### Development & Deployment
-- **Vite**: Fast build tool and development server
-- **ESLint**: Code linting and formatting
-- **Vitest**: Unit and integration testing
-- **Cloudflare Pages**: Optimized deployment platform
-
 ## 📦 Installation
 
 1. **Clone the repository**
@@ -105,40 +82,12 @@ supabase/
 └── migrations/         # Database schema migrations
 ```
 
-## 🔧 Configuration
-
-### Database Schema
-The application uses the following main tables:
-- `conversations`: Store chat conversations
-- `messages`: Store individual chat messages
-- Built-in Supabase `auth.users`: User authentication
-
-### Authentication
-- Email/password authentication
-- JWT tokens for session management
-- Row-level security for data isolation
-- Automatic session refresh
-
 ### AI Integration
-The application includes a mock AI service that can be easily replaced with:
+The application includes a OpenRouter AI service that can be easily replaced with:
 - OpenAI GPT API
 - Anthropic Claude API
 - Google PaLM API
 - Custom AI models
-
-## 🚀 Deployment
-
-### Cloudflare Pages (Recommended)
-1. Build the application:
-   ```bash
-   npm run build
-   ```
-
-2. Deploy to Cloudflare Pages:
-   - Connect your repository
-   - Set build command: `npm run build`
-   - Set output directory: `dist`
-   - Configure environment variables
 
 ### Other Platforms
 The application can also be deployed to:
@@ -154,15 +103,6 @@ Run the test suite:
 npm run test          # Run tests
 npm run test:ui       # Run tests with UI
 ```
-
-## 📈 Performance Optimizations
-
-- **Code Splitting**: Lazy loading of routes and components
-- **Image Optimization**: Responsive images with proper formats
-- **Caching**: Aggressive caching of static assets
-- **Database Indexing**: Optimized queries with proper indexes
-- **Bundle Analysis**: Regular bundle size monitoring
-- **CDN**: Global content delivery network
 
 ## 🔒 Security Features
 
