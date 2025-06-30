@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
@@ -10,6 +10,7 @@ export const ChatArea: React.FC = () => {
   const {
     currentConversation,
     messages,
+    optimisticMessages,
     isTyping,
     sendMessage,
     createConversation,
@@ -23,15 +24,27 @@ export const ChatArea: React.FC = () => {
     threshold: 0.1,
   });
 
+  // Combine real messages with optimistic messages for immediate display
+  const allMessages = useMemo(() => {
+    const combined = [...messages];
+    // Add optimistic messages that aren't already in the real messages
+    optimisticMessages.forEach(optimisticMsg => {
+      if (!combined.find(msg => msg.id === optimisticMsg.id)) {
+        combined.push(optimisticMsg);
+      }
+    });
+    // Sort by creation date to maintain order
+    return combined.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  }, [messages, optimisticMessages]);
+
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  // Auto-scroll to bottom on new messages
-  useEffect(() => {
-    const timer = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timer);
-  }, [messages.length, isTyping, scrollToBottom]);
+  // Auto-scroll to bottom as soon as the DOM has painted the new message
+  useLayoutEffect(() => {
+    scrollToBottom();
+  }, [allMessages.length, isTyping, scrollToBottom]);
 
   // Load more messages when scrolling to top
   useEffect(() => {
@@ -62,7 +75,7 @@ export const ChatArea: React.FC = () => {
   ], []);
 
   // Welcome screen for new conversations
-  if (!currentConversation && messages.length === 0) {
+  if (!currentConversation && allMessages.length === 0) {
     return (
       <div className="h-full flex flex-col bg-gray-50">
         {/* Welcome Screen */}
@@ -120,7 +133,7 @@ export const ChatArea: React.FC = () => {
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Load more trigger */}
             {hasMoreMessages && (
-              <div ref={loadMoreRef} className="flex items-center justify-center py-4">
+              <div ref={loadMoreRef as React.RefObject<HTMLDivElement>} className="flex items-center justify-center py-4">
                 <div className="text-xs text-gray-500 bg-white px-3 py-2 rounded-full shadow-sm border border-gray-200">
                   Loading more messages...
                 </div>
@@ -128,11 +141,11 @@ export const ChatArea: React.FC = () => {
             )}
             
             {/* Messages list */}
-            {messages.map((message, index) => (
-              <MessageBubble 
+            {allMessages.map((message, index) => (
+              <MessageBubble
                 key={message.id} 
                 message={message} 
-                isLast={index === messages.length - 1}
+                isLast={index === allMessages.length - 1}
               />
             ))}
             

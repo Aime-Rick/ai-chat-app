@@ -129,7 +129,7 @@ async function getAIResponse(prompt: string, conversationHistory: Message[] = []
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer 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',
+        'Authorization': 'Bearer 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',
         'Content-Type': 'application/json',
         'X-Title': 'AI Chat Application',
       },

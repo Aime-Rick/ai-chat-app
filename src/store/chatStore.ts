@@ -128,8 +128,7 @@ export const useChatStore = create<ExtendedChatState & ChatActions>()(
     sendMessage: async (conversationId, content) => {
       const endTimer = performanceMonitor.startTimer('store.sendMessage');
       set({ isTyping: true, error: null });
-      
-      // Optimistically add user message
+
       const tempUserMessage: Message = {
         id: `temp-user-${Date.now()}`,
         conversation_id: conversationId,
@@ -137,34 +136,59 @@ export const useChatStore = create<ExtendedChatState & ChatActions>()(
         role: 'user',
         created_at: new Date().toISOString(),
       };
-      
+
       set((state) => ({
         messages: [...state.messages, tempUserMessage],
-        optimisticMessages: [...state.optimisticMessages, tempUserMessage]
+        optimisticMessages: [...state.optimisticMessages, tempUserMessage],
       }));
 
       try {
         const { data, error, success } = await api.sendMessage(conversationId, content);
-        if (success) {
-          // Remove optimistic messages and reload all messages to get the AI response
-          const { data: updatedMessages } = await api.getMessages(conversationId);
-          set({ 
-            messages: updatedMessages || [],
-            optimisticMessages: []
-          });
+
+        if (success && data) {
+          if (Array.isArray(data)) {
+            // Back-end returned both the persisted user message and the assistant reply.
+            const [userMessage, aiMessage] = data;
+
+            set((state) => ({
+              messages: [
+                ...state.messages.filter((msg) => msg.id !== tempUserMessage.id),
+                userMessage,
+                aiMessage,
+              ],
+              // Optimistic user message has now been replaced with the real one
+              optimisticMessages: state.optimisticMessages.filter(
+                (msg) => msg.id !== tempUserMessage.id
+              ),
+            }));
+          } else {
+            // Back-end returned only the assistant reply. Keep the optimistic user
+            // message and just append the assistant message.
+            const aiMessage = data;
+            set((state) => ({
+              messages: [
+                ...state.messages,
+                aiMessage,
+              ],
+              // Clear optimistic list – its message is now considered final.
+              optimisticMessages: state.optimisticMessages.filter(
+                (msg) => msg.id !== tempUserMessage.id
+              ),
+            }));
+          }
         } else {
           set({ error });
           // Remove optimistic message on error
           set((state) => ({
             messages: state.messages.filter(msg => msg.id !== tempUserMessage.id),
-            optimisticMessages: state.optimisticMessages.filter(msg => msg.id !== tempUserMessage.id)
+            optimisticMessages: state.optimisticMessages.filter(msg => msg.id !== tempUserMessage.id),
           }));
         }
       } catch (error) {
         set({ error: 'Failed to send message' });
         set((state) => ({
           messages: state.messages.filter(msg => msg.id !== tempUserMessage.id),
-          optimisticMessages: state.optimisticMessages.filter(msg => msg.id !== tempUserMessage.id)
+          optimisticMessages: state.optimisticMessages.filter(msg => msg.id !== tempUserMessage.id),
         }));
       } finally {
         set({ isTyping: false });
@@ -178,7 +202,7 @@ export const useChatStore = create<ExtendedChatState & ChatActions>()(
       
       try {
         const { data, error, success } = await api.createConversation(title);
-        if (success) {
+        if (success && data) {
           set((state) => ({
             conversations: [data, ...state.conversations],
             currentConversation: data,

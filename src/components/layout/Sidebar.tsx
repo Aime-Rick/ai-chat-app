@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MessageSquare, Settings, LogOut, User, Search, Archive } from 'lucide-react';
+import { Plus, MessageSquare, LogOut, Search } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useChatStore } from '../../store/chatStore';
@@ -182,18 +182,7 @@ export const Sidebar: React.FC<SidebarProps> = memo(({ isOpen, onClose }) => {
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 flex-shrink-0">
           <div className="space-y-2">
-            <Button variant="ghost" className="w-full justify-start text-sm">
-              <User className="w-4 h-4 mr-3" />
-              Profile
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-sm">
-              <Archive className="w-4 h-4 mr-3" />
-              Archived
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-sm">
-              <Settings className="w-4 h-4 mr-3" />
-              Settings
-            </Button>
+
             <Button
               variant="ghost"
               className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 text-sm"
